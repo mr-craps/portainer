@@ -34,21 +34,14 @@ func NewService() *Service {
 	}
 }
 
-// ClonePublicRepository clones a public git repository using the specified URL in the specified
+// CloneRepository clones a git repository using the specified URL in the specified
 // destination folder.
-func (service *Service) ClonePublicRepository(repositoryURL, referenceName string, destination string) error {
-	return cloneRepository(repositoryURL, referenceName, destination)
-}
+func (service *Service) CloneRepository(destination string, repositoryURL, referenceName string, auth bool, username, password string) error {
+	if auth {
+		credentials := username + ":" + url.PathEscape(password)
+		repositoryURL = strings.Replace(repositoryURL, "://", "://"+credentials+"@", 1)
+	}
 
-// ClonePrivateRepositoryWithBasicAuth clones a private git repository using the specified URL in the specified
-// destination folder. It will use the specified username and password for basic HTTP authentication.
-func (service *Service) ClonePrivateRepositoryWithBasicAuth(repositoryURL, referenceName string, destination, username, password string) error {
-	credentials := username + ":" + url.PathEscape(password)
-	repositoryURL = strings.Replace(repositoryURL, "://", "://"+credentials+"@", 1)
-	return cloneRepository(repositoryURL, referenceName, destination)
-}
-
-func cloneRepository(repositoryURL, referenceName, destination string) error {
 	options := &git.CloneOptions{
 		URL: repositoryURL,
 	}
